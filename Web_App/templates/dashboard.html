@@ -1,1 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CureConnect - لوحة التحكم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 font-sans">
 
+    <nav class="bg-white shadow-sm py-4 px-8 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <h1 class="text-2xl font-bold text-teal-600">CureConnect</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="text-gray-600">أهلاً، مؤمن</span>
+            <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-600">
+                <i class="fa-solid fa-user"></i>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-slate-800">
+                    <i class="fa-solid fa-pills text-teal-500"></i> التحكم في الأدراج
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 border border-slate-200 rounded-xl hover:border-teal-400 transition">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-bold">الدرج الأول</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-600 text-xs rounded-full">ممتلئ</span>
+                        </div>
+                        <button class="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition">صرف الجرعة الآن</button>
+                    </div>
+                    <div class="p-4 border border-slate-200 rounded-xl hover:border-teal-400 transition">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-bold">الدرج الثاني</span>
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-600 text-xs rounded-full">قاربت على الانتهاء</span>
+                        </div>
+                        <button class="w-full bg-slate-200 text-slate-600 py-2 rounded-lg cursor-not-allowed">مغلق</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-teal-500 to-emerald-600 p-6 rounded-2xl shadow-md text-white">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-bold mb-2">المساعد الصوتي AI</h3>
+                        <p class="text-teal-50 Richmond-light">النظام جاهز لنطق التنبيهات بصوت بشري حقيقي.</p>
+                    </div>
+                    <button class="bg-white text-teal-600 p-4 rounded-full shadow-lg hover:scale-110 transition">
+                        <i class="fa-solid fa-microphone-lines text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-red-50 p-6 rounded-2xl border-2 border-red-200 shadow-sm animate-pulse">
+                <h3 class="text-red-600 font-bold text-lg mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i> تنبيه طوارئ (SOS)
+                </h3>
+                <p class="text-red-700 mb-4 text-sm">تم الضغط على زر البريسليت منذ دقيقتين!</p>
+                <button class="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700">
+                    اتصال سريع بالأهل
+                </button>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="font-bold text-slate-800 mb-4 text-center">حالة الجهاز</h3>
+                <div class="flex justify-center mb-4">
+                    <div class="relative w-24 h-24">
+                        <svg class="w-full h-full" viewBox="0 0 36 36">
+                            <path class="text-slate-100" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="text-teal-500" stroke-width="3" stroke-dasharray="85, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold">85%</span>
+                    </div>
+                </div>
+                <p class="text-xs text-center text-gray-500 italic">البطارية والاتصال بالواي فاي ممتاز</p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
