@@ -1,55 +1,85 @@
-// CureConnect Frontend Logic
+/* CureConnect - Real-time Control System
+   Main Script for Dashboard Interaction
+*/
 
-// 1. دالة لفتح الدرج (صرف الجرعة)
+// 1. دالة صرف الجرعة (تتعامل مع الـ 8 أدراج)
 function dispenseMedicine(drawerNumber) {
-    console.log("Dispensing from drawer: " + drawerNumber);
+    console.log("طلب صرف جرعة من الدرج رقم: " + drawerNumber);
     
-    // هنبعت طلب للسيرفر (Flask) وهو اللي بيكلم Firebase
+    // إرسال طلب للسيرفر
     fetch('/update_drawer', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            drawer: drawerNumber,
-            status: true
+            drawer: drawerNumber
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert("جاري فتح الدرج رقم " + drawerNumber);
+            // إظهار تنبيه شيك للمستخدم
+            alert("✅ " + data.message);
+        } else {
+            alert("❌ فشل إرسال الأمر: " + data.error);
         }
     })
-    .catch(error => console.error('Error:', error));
-}
-
-// 2. دالة مراقبة حالة الطوارئ (SOS)
-// هنخلي الموقع يسأل السيرفر كل 3 ثواني عن حالة الـ SOS
-function checkSOS() {
-    fetch('/get_sos_status')
-    .then(response => response.json())
-    .then(data => {
-        const sosCard = document.querySelector('.sos-card');
-        if (data.sos_active === 1) {
-            // لو فيه طوارئ، هنخلي الكارت ينور أحمر ويظهر تنبيه
-            sosCard.classList.add('animate-pulse', 'bg-red-600', 'text-white');
-            // ممكن نشغل صوت تنبيه هنا برضه
-        } else {
-            sosCard.classList.remove('animate-pulse', 'bg-red-600', 'text-white');
-        }
+    .catch(error => {
+        console.error('Error:', error);
+        alert("⚠️ خطأ في الاتصال بالسيرفر");
     });
 }
 
-// تشغيل المراقبة كل 3 ثواني
-setInterval(checkSOS, 3000);
+// 2. دالة تحديث حالة الموقع (SOS والـ GPS) بشكل تلقائي
+function updateRealTimeData() {
+    fetch('/get_sos_status')
+    .then(response => response.json())
+    .then(data => {
+        // --- تحديث حالة الـ SOS ---
+        const sosCard = document.querySelector('.sos-card');
+        if (data.sos_active === 1) {
+            sosCard.classList.add('bg-red-600', 'text-white', 'animate-pulse');
+            sosCard.querySelector('p').innerText = "🚨 تنبيه: المريض يحتاج مساعدة فوراً!";
+        } else {
+            sosCard.classList.remove('bg-red-600', 'text-white', 'animate-pulse');
+            sosCard.querySelector('p').innerText = "النظام يعمل بشكل مستقر، لا يوجد تنبيهات حالياً.";
+        }
 
-// 3. ربط الأزرار عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', function() {
-    const dispenseBtn = document.querySelector('.btn-primary');
-    if (dispenseBtn) {
-        dispenseBtn.addEventListener('click', function() {
-            dispenseMedicine(1); // بنجرب على الدرج الأول
+        // --- تحديث الخريطة إذا تغير اللوكيشن ---
+        if (data.location) {
+            const mapIframe = document.getElementById('google-map');
+            const newSrc = `https://maps.google.com/maps?q=${data.location.lat},${data.location.lng}&z=15&output=embed`;
+            
+            // تحديث الخريطة فقط إذا تغيرت الإحداثيات لتجنب الـ Flickering
+            if (mapIframe.src !== newSrc) {
+                mapIframe.src = newSrc;
+                console.log("تم تحديث موقع المريض على الخريطة");
+            }
+        }
+    })
+    .catch(error => console.error('Error fetching real-time data:', error));
+}
+
+// 3. المساعد الصوتي (تشغيل تنبيه صوتي عند الحاجة)
+const voiceBtn = document.querySelector('.ai-mic-btn');
+if (voiceBtn) {
+    voiceBtn.addEventListener('click', () => {
+        fetch('/get_voice_alert')
+        .then(response => response.json())
+        .then(data => {
+            const msg = new SpeechSynthesisUtterance(data.text);
+            msg.lang = 'ar-SA'; // لغة عربية
+            window.speechSynthesis.speak(msg);
         });
-    }
+    });
+}
+
+// --- بدء المراقبة اللحظية كل 5 ثواني ---
+setInterval(updateRealTimeData, 5000);
+
+// --- تهيئة الصفحة عند التحميل ---
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("CureConnect Dashboard Ready!");
+    updateRealTimeData(); // تحديث فوري عند الفتح
 });
