@@ -11,5 +11,8 @@
       "src": "/(.*)",
       "dest": "Web_App/app.py"
     }
-  ]
+  ],
+  "env": {
+    "PYTHONPATH": "."
+  }
 }
