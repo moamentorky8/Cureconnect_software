@@ -8,11 +8,16 @@
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "dest": "Web_App/static/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "Web_App/app.py"
     }
   ],
   "env": {
-    "PYTHONPATH": "."
+    "PYTHONPATH": ".",
+    "FLASK_APP": "Web_App/app.py"
   }
 }
