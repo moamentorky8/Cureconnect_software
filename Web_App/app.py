@@ -2,23 +2,23 @@ import os
 import sys
 from flask import Flask, render_template, request, jsonify
 
-# 1. تعريف المسار عشان السيرفر يشوف الملفات اللي بره المجلد
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# 1. إجبار السيرفر على رؤية المجلد الرئيسي (Root) حيث يوجد firebase_config.py
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if root_path not in sys.path:
+    sys.path.append(root_path)
 
-# 2. استيراد المكتبات والدوال الأساسية
-try:
-    from firebase_config import initialize_firebase, get_patient_name
-    from firebase_admin import db
-except Exception as e:
-    print(f"❌ Error during imports: {e}")
+# 2. استيراد الدوال (بدون try عشان لو مش موجودة السيرفر يدي Error واضح وصريح)
+from firebase_config import initialize_firebase, get_patient_name
+from firebase_admin import db
 
 app = Flask(__name__)
 
-# 3. تهيئة الاتصال بفايربيز عند بدء تشغيل السيرفر
+# 3. تهيئة الاتصال بفايربيز
 try:
     initialize_firebase()
+    print("✅ CureConnect: Firebase connected via app.py")
 except Exception as e:
-    print(f"❌ Firebase initialization failed: {e}")
+    print(f"❌ Firebase Boot Error: {e}")
 
 # --- المسارات (Routes) ---
 
@@ -26,10 +26,10 @@ except Exception as e:
 @app.route('/dashboard')
 def dashboard():
     try:
-        # جلب البيانات
+        # جلب البيانات الأساسية
         name = get_patient_name()
         
-        # إحداثيات افتراضية (الإسكندرية) لو الداتابيز مشغولة
+        # إحداثيات افتراضية (الإسكندرية)
         location = {"lat": 31.2001, "lng": 29.9187}
         medical_info = None
 
@@ -37,7 +37,8 @@ def dashboard():
         if db:
             loc_ref = db.reference('users/u1/location')
             db_loc = loc_ref.get()
-            if db_loc: location = db_loc
+            if db_loc: 
+                location = db_loc
             
             med_ref = db.reference('users/u1/medical_info')
             medical_info = med_ref.get()
@@ -47,7 +48,8 @@ def dashboard():
                                location=location,
                                medical=medical_info)
     except Exception as e:
-        return f"خطأ في السيرفر: {str(e)}", 500
+        # في حالة وجود خطأ في الرندر أو البيانات، اطبعه بوضوح
+        return f"<h1 style='color:red'>Server Error:</h1><p>{str(e)}</p>", 500
 
 @app.route('/update_drawer', methods=['POST'])
 def update_drawer():
