@@ -1,5 +1,5 @@
 import os
-import requests # تأكد من وجودها في requirements.txt
+import requests
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import firebase_admin
 from firebase_admin import credentials, db
@@ -55,7 +55,6 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
         
-        # التواصل مع Firebase Auth API
         auth_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
         payload = {"email": email, "password": password, "returnSecureToken": True}
         
@@ -73,7 +72,7 @@ def login():
             
     return render_template('login.html', error=error)
 
-# 2. إنشاء حساب جديد
+# 2. إنشاء حساب جديد (محدث لإنشاء بيانات المستخدم)
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if is_logged_in():
@@ -91,13 +90,28 @@ def register():
             response = requests.post(auth_url, json=payload)
             data = response.json()
             if response.status_code == 200:
-                session['user_id'] = data['localId']
+                user_id = data['localId']
+                
+                # --- إضافة: إنشاء الهيكل الأساسي لبيانات المستخدم في الـ Database ---
+                db.reference(f'users/{user_id}').set({
+                    "name": "مستخدم جديد",
+                    "email": email,
+                    "location": {"lat": 31.2001, "lng": 29.9187},
+                    "medical_info": {
+                        "age": "غير محدد",
+                        "blood_type": "غير محدد",
+                        "phone": "غير محدد",
+                        "chronic_diseases": ["لا يوجد"]
+                    }
+                })
+                
+                session['user_id'] = user_id
                 session['email'] = data['email']
                 return redirect(url_for('dashboard'))
             else:
                 error = "فشل إنشاء الحساب (ربما الإيميل مسجل مسبقاً)"
-        except:
-            error = "خطأ في الاتصال"
+        except Exception as e:
+            error = f"خطأ في الاتصال: {str(e)}"
             
     return render_template('register.html', error=error)
 
@@ -127,7 +141,7 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# 5. الداش بورد (محدثة لتجلب بيانات المستخدم الحالي)
+# 5. الداش بورد (محدثة لتكون أكثر أماناً)
 @app.route('/')
 @app.route('/dashboard')
 def dashboard():
@@ -138,18 +152,18 @@ def dashboard():
     user_email = session['email']
     
     try:
-        # جلب البيانات من المسار الخاص بهذا اليوزر
-        name = "مستخدم جديد"
-        location = {"lat": 31.2001, "lng": 29.9187}
-        medical_info = None
-
         user_ref = db.reference(f'users/{user_id}')
         data = user_ref.get()
         
+        # قيم افتراضية لمنع الكراش لو الداتا مش موجودة
+        name = "مستخدم جديد"
+        location = {"lat": 31.2001, "lng": 29.9187}
+        medical_info = {"age": "---", "blood_type": "---", "chronic_diseases": []}
+
         if data:
-            name = data.get('name', "مستخدم جديد")
+            name = data.get('name', name)
             location = data.get('location', location)
-            medical_info = data.get('medical_info', None)
+            medical_info = data.get('medical_info', medical_info)
         
         return render_template('dashboard.html', 
                                user_name=name, 
@@ -157,7 +171,8 @@ def dashboard():
                                location=location,
                                medical=medical_info)
     except Exception as e:
-        return f"🚨 Error: {str(e)}", 500
+        # بدل ما يوقع الموقع، هيعرض الخطأ في الصفحة بشكل بسيط
+        return f"🚨 خطأ في تحميل البيانات: {str(e)}", 500
 
 # 6. تحديث الأدراج (API)
 @app.route('/update_drawer', methods=['POST'])
