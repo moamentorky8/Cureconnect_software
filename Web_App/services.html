@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - CureConnect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .display-font { font-family: 'Space Grotesk', sans-serif; }
+        .bg-gradient-main { background: linear-gradient(135deg, #990FFA 0%, #E60076 100%); }
+        .text-gradient { background: linear-gradient(to r, #990FFA, #E60076); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="bg-[#F9FAFB] text-[#111827]">
+
+    <nav class="flex justify-between items-center px-8 py-4 bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-gray-100">
+        <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-gradient-main rounded-xl flex items-center justify-center shadow-lg">
+                <span class="text-white font-bold text-xl">C</span>
+            </div>
+            <span class="text-2xl display-font font-bold text-[#111827]">Cure<span class="text-[#990FFA]">Connect</span></span>
+        </div>
+        <div class="hidden md:flex space-x-8 font-semibold">
+            <a href="index.html" class="hover:text-[#990FFA] transition-colors">Home</a>
+            <a href="services.html" class="text-[#990FFA]">Services</a>
+            <a href="login.html" class="px-6 py-2 bg-gradient-main text-white rounded-full hover:shadow-lg transition-all">Login</a>
+        </div>
+    </nav>
+
+    <section class="py-20 px-8 text-center bg-white border-b border-gray-50">
+        <h1 class="text-5xl display-font font-bold mb-4">How We <span class="text-gradient">Serve You</span></h1>
+        <p class="max-w-xl mx-auto text-gray-500 font-medium">Comprehensive medical management solutions tailored for modern healthcare needs.</p>
+    </section>
+
+    <main class="py-20 px-8 max-w-7xl mx-auto">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+            
+            <div class="group bg-white p-10 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-gray-100">
+                <div class="w-16 h-16 bg-[#990FFA]/10 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-gradient-main transition-colors duration-300">
+                    <svg class="w-8 h-8 text-[#990FFA] group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.628.283a2 2 0 01-1.186.13l-2.314-.463a8 8 0 01-6.29-6.29L3.136 6.136a2 2 0 01.13-1.186l.283-.628a6 6 0 01.517-3.86l.477-2.387a2 2 0 01.547-1.022"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Automated Dispensing</h3>
+                <p class="text-gray-500 leading-relaxed mb-6">Our hardware system ensures that the right pill is delivered at the right time, every time, reducing human error to zero.</p>
+                <ul class="text-sm font-semibold text-[#111827] space-y-2">
+                    <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-[#E60076] mr-2"></span> High Precision Motors</li>
+                    <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-[#E60076] mr-2"></span> Multi-compartment Storage</li>
+                </ul>
+            </div>
+
+            <div class="group bg-white p-10 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-gray-100">
+                <div class="w-16 h-16 bg-[#E60076]/10 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-gradient-main transition-colors duration-300">
+                    <svg class="w-8 h-8 text-[#E60076] group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Cloud Synchronization</h3>
+                <p class="text-gray-500 leading-relaxed mb-6">All data is synced across your devices via Firebase. Manage your schedule from anywhere in the world.</p>
+                <ul class="text-sm font-semibold text-[#111827] space-y-2">
+                    <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-[#990FFA] mr-2"></span> Real-time Updates</li>
+                    <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-[#990FFA] mr-2"></span> Secure Data Encryption</li>
+                </ul>
+            </div>
+
+            <div class="group bg-white p-10 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-gray-100">
+                <div class="w-16 h-16 bg-[#990FFA]/10 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-gradient-main transition-colors duration-300">
+                    <svg class="w-8 h-8 text-[#990FFA] group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Caregiver Dashboard</h3>
+                <p class="text-gray-500 leading-relaxed mb-6">Dedicated interface for family members to monitor health progress and receive emergency alerts.</p>
+                <ul class="text-sm font-semibold text-[#111827] space-y-2">
+                    <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-[#E60076] mr-2"></span> Remote Adherence Tracking</li>
+                    <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-[#E60076] mr-2"></span> Emergency Notifications</li>
+                </ul>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-12 text-center text-gray-400 text-sm">
+        <p>&copy; 2026 CureConnect System. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
