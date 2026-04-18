@@ -45,6 +45,16 @@ def index():
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
+# صفحة About Us
+@app.route('/about-us')
+def about_us():
+    return render_template('about-us.html')
+
+# صفحة Services
+@app.route('/services')
+def services():
+    return render_template('services.html')
+
 # 1. تسجيل الدخول
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -62,6 +72,8 @@ def login():
                 session.permanent = True
                 session['user_id'] = data['localId']
                 session['email'] = data['email']
+                # لو مسجلش اسم، نخليه 'User' افتراضي
+                session['user_name'] = data.get('displayName', 'User')
                 return redirect(url_for('dashboard'))
             else:
                 error = "Invalid Email or Password."
@@ -85,7 +97,6 @@ def register():
             if response.status_code == 200:
                 session['user_id'] = data['localId']
                 session['email'] = email
-                # توجيه المستخدم لصفحة إدخال بيانات المريض فوراً بعد التسجيل
                 return redirect(url_for('patient_data'))
             else:
                 error = data.get('error', {}).get('message', 'Registration Failed.')
@@ -93,13 +104,13 @@ def register():
             error = "Network Error."
     return render_template('register.html', error=error)
 
-# 3. شاشة إدخال بيانات المريض (لأول مرة)
+# 3. شاشة إدخال بيانات المريض
 @app.route('/patient_data')
 def patient_data():
     if not is_logged_in(): return redirect(url_for('login'))
     return render_template('patient_data.html')
 
-# 4. حفظ بيانات المريض في الـ Database
+# 4. حفظ بيانات المريض
 @app.route('/save_patient_data', methods=['POST'])
 def save_patient_data():
     if not is_logged_in(): return redirect(url_for('login'))
@@ -114,7 +125,7 @@ def save_patient_data():
         db.reference(f'users/{user_id}').set({
             "name": name,
             "email": session['email'],
-            "location": {"lat": 31.2001, "lng": 29.9187}, # موقع افتراضي (Alexandria)
+            "location": {"lat": 31.2001, "lng": 29.9187},
             "medical_info": {
                 "age": age,
                 "blood_type": blood_type,
@@ -144,7 +155,7 @@ def reset_password():
             error = "Network error."
     return render_template('reset_password.html', message=message, error=error)
 
-# 6. الداشبورد (عرض البيانات والتحكم)
+# 6. الداشبورد
 @app.route('/dashboard')
 def dashboard():
     if not is_logged_in(): return redirect(url_for('login'))
@@ -152,18 +163,17 @@ def dashboard():
     try:
         user_data = db.reference(f'users/{user_id}').get()
         if not user_data:
-            # لو الحساب لسه ملوش داتا يروح يكملها
             return redirect(url_for('patient_data'))
         
         return render_template('dashboard.html', 
-                               user_name=user_data.get('name'), 
+                               user_name=user_data.get('name', 'User'), 
                                user_email=session['email'],
-                               location=user_data.get('location'),
-                               medical=user_data.get('medical_info'))
+                               location=user_data.get('location', {"lat": 31.2, "lng": 29.9}),
+                               medical=user_data.get('medical_info', {}))
     except:
         return render_template('dashboard.html', error="Sync Error")
 
-# 7. API: تحكم الأدراج (ESP32 Interface)
+# 7. API: تحكم الأدراج
 @app.route('/update_drawer', methods=['POST'])
 def update_drawer():
     if not is_logged_in(): return jsonify({"success": False}), 401
@@ -173,6 +183,18 @@ def update_drawer():
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
+
+# API للحصول على حالة الـ SOS لزوم السكريبت
+@app.route('/get_sos_status')
+def get_sos_status():
+    if not is_logged_in(): return jsonify({"sos_active": False})
+    try:
+        user_id = session['user_id']
+        data = db.reference(f'users/{user_id}/sos_active').get()
+        location = db.reference(f'users/{user_id}/location').get()
+        return jsonify({"sos_active": data, "location": location})
+    except:
+        return jsonify({"sos_active": False})
 
 # 8. تسجيل الخروج
 @app.route('/logout')
