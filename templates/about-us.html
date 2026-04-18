@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - CureConnect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .display-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .bg-gradient-main {
+            background: linear-gradient(135deg, #218C97 0%, #59B585 100%);
+        }
+
+        .text-gradient {
+            background: linear-gradient(to r, #218C97, #59B585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #mobile-menu {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+
+<body class="bg-[#F9FAFB] overflow-x-hidden">
+
+    <nav
+        class="flex justify-between items-center px-6 py-5 bg-white/90 backdrop-blur-lg sticky top-0 z-50 shadow-sm border-b border-gray-100">
+        <div class="flex items-center space-x-4">
+            <button id="menu-btn" class="p-2 hover:bg-gray-100 rounded-2xl transition-all">
+                <svg class="w-8 h-8 text-[#111827]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+            </button>
+            <div class="flex items-center space-x-2">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="CureConnect"
+                    class="w-10 h-10 object-contain">
+                <span class="text-xl display-font font-bold">Cure<span class="text-[#218C97]">Connect</span></span>
+            </div>
+        </div>
+
+        <a href="#"
+            class="flex items-center space-x-2 px-5 py-2.5 bg-white border-2 border-[#218C97] text-[#218C97] font-bold rounded-2xl hover:bg-[#218C97] hover:text-white transition-all text-sm shadow-sm group">
+            <svg class="w-5 h-5 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            <span>Download APK</span>
+        </a>
+    </nav>
+
+    <div id="mobile-menu"
+        class="fixed inset-y-0 left-0 w-80 bg-white z-[60] shadow-2xl transform -translate-x-full p-8 flex flex-col">
+        <div class="flex justify-between items-center mb-12">
+            <span class="font-bold text-2xl text-gradient display-font">Navigation</span>
+            <button id="close-menu"
+                class="text-gray-400 hover:text-gray-600 transition-colors text-3xl font-light">&times;</button>
+        </div>
+        <ul class="space-y-8 flex-grow">
+            <li><a href="index.html"
+                    class="text-xl font-bold text-gray-500 hover:text-[#218C97] transition-colors pl-6">Home</a></li>
+            <li><a href="services.html"
+                    class="text-xl font-bold text-gray-500 hover:text-[#59B585] transition-colors pl-6">Services</a>
+            </li>
+            <li><a href="about-us.html" class="flex items-center space-x-4 text-xl font-bold text-[#218C97]"><span
+                        class="w-2 h-2 rounded-full bg-[#218C97]"></span><span>About Us</span></a></li>
+        </ul>
+        <div class="pt-8 border-t border-gray-100">
+            <a href="login.html"
+                class="w-full block py-4 bg-gradient-main text-white text-center font-bold rounded-[1.5rem] shadow-xl hover:shadow-[#218C97]/30 transition-all">Login</a>
+        </div>
+    </div>
+
+    <section class="py-24 px-8 bg-white relative">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl display-font font-bold mb-8 italic">"Empowering lives through <span
+                    class="text-gradient">Smart Healthcare</span>."</h1>
+            <p class="text-lg text-gray-500 leading-relaxed font-medium">
+                At CureConnect, we believe that technology should serve humanity. Our mission is to eliminate the stress
+                of medication management for families and ensure every patient receives their treatment safely and on
+                time.
+            </p>
+        </div>
+    </section>
+
+    <section class="py-20 px-8 max-w-7xl mx-auto grid md:grid-cols-2 gap-12">
+        <div class="bg-white p-12 rounded-[3rem] shadow-sm border border-gray-100">
+            <h2 class="text-3xl display-font font-bold mb-6 text-[#218C97]">Our Vision</h2>
+            <p class="text-gray-600 leading-relaxed italic text-sm">To become the leading IoT healthcare companion in
+                every home, making chronic disease management seamless and error-free through innovation and empathy.
+            </p>
+        </div>
+        <div class="bg-white p-12 rounded-[3rem] shadow-sm border border-gray-100">
+            <h2 class="text-3xl display-font font-bold mb-6 text-[#59B585]">Why We Do It</h2>
+            <p class="text-gray-600 leading-relaxed text-sm">Inspired by the challenges faced by elderly patients in
+                Alexandria and Borg El Arab, we built a system that bridges the gap between hardware precision and human
+                care.</p>
+        </div>
+    </section>
+
+    <footer class="py-12 bg-white border-t border-gray-50 text-center">
+        <div class="flex justify-center items-center space-x-2 mb-4">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"
+                class="w-6 h-6 grayscale opacity-50 object-contain">
+            <span class="text-gray-400 font-bold display-font">CureConnect System</span>
+        </div>
+        <p class="text-gray-400 text-sm">&copy; 2026 Borg El Arab Technological University Project.</p>
+    </footer>
+
+    <div id="overlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[55] hidden opacity-0 transition-opacity">
+    </div>
+
+    <script>
+        const menuBtn = document.getElementById('menu-btn');
+        const closeBtn = document.getElementById('close-menu');
+        const menu = document.getElementById('mobile-menu');
+        const overlay = document.getElementById('overlay');
+
+        function openMenu() {
+            menu.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.add('opacity-100'), 10);
+        }
+
+        function closeMenu() {
+            menu.classList.add('-translate-x-full');
+            overlay.classList.remove('opacity-100');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
+
+        menuBtn.onclick = openMenu;
+        closeBtn.onclick = closeMenu;
+        overlay.onclick = closeMenu;
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CureConnect - Integrated Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .display-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .bg-cure-gradient {
+            background: linear-gradient(135deg, #218C97 0%, #59B585 100%);
+        }
+
+        .text-cure-teal {
+            color: #218C97;
+        }
+
+        .border-cure-teal {
+            border-color: #218C97;
+        }
+
+        .bg-light-teal {
+            background-color: rgba(33, 140, 151, 0.05);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50">
+
+    <nav
+        class="bg-white shadow-sm py-4 px-8 flex justify-between items-center sticky top-0 z-50 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="h-10 w-auto object-contain">
+            <h1 class="text-2xl font-bold display-font text-[#218C97]">Cure<span class="text-[#59B585]">Connect</span>
+            </h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="hidden md:block text-right">
+                <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Account</p>
+                <span class="text-slate-800 font-bold text-sm">{{ user_email }}</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-gray-600 font-semibold border-l pl-4">Hi, {{ user_name }}</span>
+                <a href="{{ url_for('logout') }}" class="text-red-400 hover:text-red-600 transition" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket text-xl"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
+
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+            <h3 class="text-xl font-bold mb-8 flex items-center gap-3 text-slate-800 display-font">
+                <i class="fa-solid fa-box-archive text-cure-teal"></i> Medicine Organizer (8 Compartments)
+            </h3>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div
+                    class="p-6 border border-gray-50 rounded-[2rem] bg-gray-50 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all group">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-slate-700">Slot 1</span>
+                        <div class="w-3 h-3 rounded-full bg-[#59B585] animate-pulse shadow-[0_0_10px_#59B585]"></div>
+                    </div>
+                    <button onclick="dispenseMedicine(1)"
+                        class="w-full py-3 text-xs font-bold bg-cure-gradient text-white rounded-xl shadow-md hover:opacity-90 transition-all active:scale-95">DISPENSE</button>
+                </div>
+
+                <div
+                    class="p-6 border border-gray-50 rounded-[2rem] bg-gray-50 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all group">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-slate-700">Slot 2</span>
+                        <div class="w-3 h-3 rounded-full bg-[#59B585] animate-pulse shadow-[0_0_10px_#59B585]"></div>
+                    </div>
+                    <button onclick="dispenseMedicine(2)"
+                        class="w-full py-3 text-xs font-bold bg-cure-gradient text-white rounded-xl shadow-md hover:opacity-90 transition-all active:scale-95">DISPENSE</button>
+                </div>
+
+                <div
+                    class="p-6 border border-gray-50 rounded-[2rem] bg-gray-50 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all group">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-slate-700">Slot 3</span>
+                        <div class="w-3 h-3 rounded-full bg-[#59B585] animate-pulse shadow-[0_0_10px_#59B585]"></div>
+                    </div>
+                    <button onclick="dispenseMedicine(3)"
+                        class="w-full py-3 text-xs font-bold bg-cure-gradient text-white rounded-xl shadow-md hover:opacity-90 transition-all active:scale-95">DISPENSE</button>
+                </div>
+
+                <div
+                    class="p-6 border border-gray-50 rounded-[2rem] bg-gray-50 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all group">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-slate-700">Slot 4</span>
+                        <div class="w-3 h-3 rounded-full bg-[#59B585] animate-pulse shadow-[0_0_10px_#59B585]"></div>
+                    </div>
+                    <button onclick="dispenseMedicine(4)"
+                        class="w-full py-3 text-xs font-bold bg-cure-gradient text-white rounded-xl shadow-md hover:opacity-90 transition-all active:scale-95">DISPENSE</button>
+                </div>
+
+                <div
+                    class="p-6 border border-gray-50 rounded-[2rem] bg-gray-50 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all group">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-slate-700">Slot 5</span>
+                        <div class="w-3 h-3 rounded-full bg-[#59B585] animate-pulse shadow-[0_0_10px_#59B585]"></div>
+                    </div>
+                    <button onclick="dispenseMedicine(5)"
+                        class="w-full py-3 text-xs font-bold bg-cure-gradient text-white rounded-xl shadow-md hover:opacity-90 transition-all active:scale-95">DISPENSE</button>
+                </div>
+
+                <div
+                    class="p-6 border border-gray-50 rounded-[2rem] bg-gray-50 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all group">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-slate-700">Slot 6</span>
+                        <div class="w-3 h-3 rounded-full bg-[#59B585] animate-pulse shadow-[0_0_10px_#59B585]"></div>
+                    </div>
+                    <button onclick="dispenseMedicine(6)"
+                        class="w-full py-3 text-xs font-bold bg-cure-gradient text-white rounded-xl shadow-md hover:opacity-90 transition-all active:scale-95">DISPENSE</button>
+                </div>
+
+                <div
+                    class="p-6 border border-gray-50 rounded-[2rem] bg-gray-50 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all group">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-slate-700">Slot 7</span>
+                        <div class="w-3 h-3 rounded-full bg-[#59B585] animate-pulse shadow-[0_0_10px_#59B585]"></div>
+                    </div>
+                    <button onclick="dispenseMedicine(7)"
+                        class="w-full py-3 text-xs font-bold bg-cure-gradient text-white rounded-xl shadow-md hover:opacity-90 transition-all active:scale-95">DISPENSE</button>
+                </div>
+
+                <div
+                    class="p-6 border border-gray-50 rounded-[2rem] bg-gray-50 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all group">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-slate-700">Slot 8</span>
+                        <div class="w-3 h-3 rounded-full bg-[#59B585] animate-pulse shadow-[0_0_10px_#59B585]"></div>
+                    </div>
+                    <button onclick="dispenseMedicine(8)"
+                        class="w-full py-3 text-xs font-bold bg-cure-gradient text-white rounded-xl shadow-md hover:opacity-90 transition-all active:scale-95">DISPENSE</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 space-y-8">
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border-t-8 border-red-500 relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-red-50 rounded-full blur-3xl"></div>
+                    <h3 class="text-red-600 font-bold text-lg mb-4 flex items-center gap-2 relative z-10">
+                        <i class="fa-solid fa-hospital-user animate-bounce"></i> Emergency Status
+                    </h3>
+                    <div id="sos-indicator"
+                        class="p-4 mb-6 rounded-2xl bg-gray-50 text-center transition-all border border-gray-100 relative z-10">
+                        <span id="sos-text" class="font-bold text-gray-400 uppercase text-xs tracking-widest">System
+                            Secure</span>
+                    </div>
+                    <button
+                        class="w-full bg-red-600 text-white py-4 rounded-2xl font-bold hover:bg-red-700 transition shadow-lg flex items-center justify-center gap-3 relative z-10 active:scale-95">
+                        <i class="fa-solid fa-phone"></i> Call Emergency Contact
+                    </button>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-3 display-font">
+                        <i class="fa-solid fa-address-card text-cure-teal"></i> Patient Profile
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                            <span class="text-gray-400 text-sm font-medium">Name</span>
+                            <span class="font-bold text-slate-700 text-sm">{{ user_name }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                            <span class="text-gray-400 text-sm font-medium">Age</span>
+                            <span class="font-bold text-slate-700 text-sm">{{ medical.age if medical and medical.age
+                                else '---' }} Years</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                            <span class="text-gray-400 text-sm font-medium">Blood Type</span>
+                            <span class="font-extrabold text-red-500 text-sm">{{ medical.blood_type if medical and
+                                medical.blood_type else 'N/A' }}</span>
+                        </div>
+                        <div class="pt-4">
+                            <span
+                                class="text-gray-400 text-[10px] uppercase font-bold tracking-widest block mb-3">Chronic
+                                Conditions</span>
+                            <div class="flex flex-wrap gap-2">
+                                {% if medical and medical.chronic_diseases %}
+                                {% for disease in medical.chronic_diseases %}
+                                <span
+                                    class="text-[10px] bg-[#218C97]/10 text-[#218C97] px-3 py-1 rounded-full font-bold border border-[#218C97]/10">{{
+                                    disease }}</span>
+                                {% endfor %}
+                                {% else %}
+                                <span class="text-xs text-gray-300 italic">No records found</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-8">
+                <div
+                    class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden min-h-[450px] flex flex-col">
+                    <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-white">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-3 display-font">
+                            <i class="fa-solid fa-map-location-dot text-cure-teal"></i> Live GPS Tracking
+                        </h3>
+                        <span
+                            class="text-[10px] font-bold text-[#59B585] bg-[#59B585]/10 px-3 py-1 rounded-full uppercase">Real-time</span>
+                    </div>
+                    <div class="flex-grow relative">
+                        <iframe id="google-map"
+                            src="https://maps.google.com/maps?q={{ location.lat }},{{ location.lng }}&z=15&output=embed"
+                            width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy">
+                        </iframe>
+                    </div>
+                </div>
+
+                <div class="bg-cure-gradient p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden group">
+                    <div
+                        class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-white/20 transition-all">
+                    </div>
+                    <div class="flex justify-between items-center relative z-10">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2 display-font">Smart Voice Assistant</h3>
+                            <p class="text-teal-50 text-sm opacity-80">Voice alerts are active to ensure medication
+                                adherence.</p>
+                        </div>
+                        <button onclick="playVoiceAlert()"
+                            class="bg-white text-[#218C97] p-6 rounded-3xl shadow-2xl hover:scale-110 transition-all active:scale-95 group">
+                            <i class="fa-solid fa-volume-high text-3xl group-hover:animate-pulse"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function dispenseMedicine(drawerId) {
+            console.log("Dispensing from slot: " + drawerId);
+            fetch('/update_drawer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ drawer: drawerId })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) alert("Opening slot " + drawerId + "...");
+                    else alert("Connection error with organizer");
+                });
+        }
+
+        function playVoiceAlert() {
+            fetch('/get_voice_alert')
+                .then(res => res.json())
+                .then(data => {
+                    const speech = new SpeechSynthesisUtterance(data.text);
+                    speech.lang = 'en-US';
+                    window.speechSynthesis.speak(speech);
+                });
+        }
+
+        function updateLiveStatus() {
+            fetch('/get_sos_status')
+                .then(res => res.json())
+                .then(data => {
+                    const sosIndicator = document.getElementById('sos-indicator');
+                    const sosText = document.getElementById('sos-text');
+
+                    if (data.sos_active) {
+                        sosIndicator.className = "p-4 mb-6 rounded-2xl bg-red-600 text-white animate-pulse shadow-lg shadow-red-200";
+                        sosText.innerText = "🚨 ALERT: HELP REQUESTED!";
+                    } else {
+                        sosIndicator.className = "p-4 mb-6 rounded-2xl bg-gray-50 text-gray-400 border border-gray-100";
+                        sosText.innerText = "System Secure";
+                    }
+
+                    if (data.location) {
+                        const map = document.getElementById('google-map');
+                        const newSrc = `https://maps.google.com/maps?q=${data.location.lat},${data.location.lng}&z=15&output=embed`;
+                        if (map.src !== newSrc) map.src = newSrc;
+                    }
+                });
+        }
+        setInterval(updateLiveStatus, 5000);
+    </script>
+</body>
+
+</html>
