@@ -2,22 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "Web_App/app.py",
+      "src": "app.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
-      "dest": "Web_App/static/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "Web_App/app.py"
+      "dest": "app.py"
     }
-  ],
-  "env": {
-    "PYTHONPATH": ".",
-    "FLASK_APP": "Web_App/app.py"
-  }
+  ]
 }
