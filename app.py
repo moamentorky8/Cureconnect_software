@@ -46,17 +46,17 @@ def index():
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
-# صفحة About Us (المسار الصافي /about-us)
+# صفحة About Us - المسار النظيف /about-us
 @app.route('/about-us')
 def about_us():
     return render_template('about-us.html')
 
-# صفحة Services (المسار الصافي /services)
+# صفحة Services - المسار النظيف /services
 @app.route('/services')
 def services():
     return render_template('services.html')
 
-# 1. تسجيل الدخول
+# 1. تسجيل الدخول - المسار النظيف /login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if is_logged_in(): 
@@ -82,7 +82,7 @@ def login():
             error = "Connection Timeout."
     return render_template('login.html', error=error)
 
-# 2. إنشاء حساب جديد
+# 2. إنشاء حساب جديد - المسار النظيف /register
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if is_logged_in(): 
@@ -106,7 +106,7 @@ def register():
             error = "Network Error."
     return render_template('register.html', error=error)
 
-# 3. شاشة إدخال بيانات المريض
+# 3. شاشة إدخال بيانات المريض - المسار /patient_data
 @app.route('/patient_data')
 def patient_data():
     if not is_logged_in(): 
@@ -211,4 +211,3 @@ def logout():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
-
