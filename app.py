@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "CureConnect_2026_Secure_Key")
 FIREBASE_WEB_API_KEY = os.environ.get("FIREBASE_WEB_API_KEY")
 
-# --- 2. تهيئة فايربيز (Firebase Admin SDK) ---
+# --- 2. تهيئة فايربيز ---
 def initialize_firebase():
     if not firebase_admin._apps:
         try:
@@ -36,20 +36,25 @@ initialize_firebase()
 def is_logged_in():
     return 'user_id' in session
 
-# --- 3. المسارات الذكية (Smart Redirects) ---
-# دي اللي هتحل مشكلة العميل لو دخل بـ .html
+# --- 3. قتالة الـ .html والـ index.html (Smart Redirects) ---
+# أي حد يدخل بـ .html السيرفر هيحوله فوراً للمسار النظيف
+
+@app.route('/index.html')
+@app.route('/index')
+def home_redirect():
+    return redirect('/', code=301)
 
 @app.route('/about-us.html')
 def about_us_redirect():
     return redirect('/about-us', code=301)
 
-@app.route('/login.html')
-def login_redirect():
-    return redirect('/login', code=301)
-
 @app.route('/services.html')
 def services_redirect():
     return redirect('/services', code=301)
+
+@app.route('/login.html')
+def login_redirect():
+    return redirect('/login', code=301)
 
 # --- 4. المسارات الأساسية (Clean Routes) ---
 
