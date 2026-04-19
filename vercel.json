@@ -8,9 +8,11 @@
   ],
   "routes": [
     { "src": "/static/(.*)", "dest": "/static/$1" },
-    { "src": "/about-us.html", "dest": "/about-us" },
-    { "src": "/login.html", "dest": "/login" },
-    { "src": "/services.html", "dest": "/services" },
+    { "src": "/about-us", "dest": "app.py" },
+    { "src": "/services", "dest": "app.py" },
+    { "src": "/login", "dest": "app.py" },
+    { "src": "/register", "dest": "app.py" },
+    { "src": "/dashboard", "dest": "app.py" },
     { "src": "/(.*)", "dest": "app.py" }
   ]
 }
