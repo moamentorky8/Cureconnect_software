@@ -1,0 +1,161 @@
+/* CureConnect Global Styles 2026 - Modern UI Version */
+
+:root {
+    /* الدرجات الدقيقة من اللوجو الجديد */
+    --cure-teal: #218C97;
+    /* Teal: اللون الأساسي */
+    --cure-green: #59B585;
+    /* Green: اللون الثانوي */
+    --cure-gradient: linear-gradient(135deg, #218C97 0%, #59B585 100%);
+
+    --danger-red: #ef4444;
+    --bg-light: #f8fafc;
+    --text-main: #1e293b;
+    --glass-bg: rgba(255, 255, 255, 0.9);
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- الكروت الزجاجية (Glassmorphism) --- */
+.stat-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    padding: 2rem;
+    border-radius: 2.5rem;
+    /* حواف دائرية كبيرة زي ما عملنا في الـ HTML */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 30px -5px rgba(33, 140, 151, 0.1);
+    border-color: rgba(33, 140, 151, 0.2);
+}
+
+/* --- الأزرار الرئيسية --- */
+.btn-primary {
+    background: var(--cure-gradient);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(33, 140, 151, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(33, 140, 151, 0.3);
+    filter: brightness(1.1);
+}
+
+.btn-primary:active {
+    transform: scale(0.96);
+}
+
+/* --- كارت الطوارئ SOS --- */
+.sos-card {
+    background-color: #fff;
+    border: 2px solid #fee2e2;
+    transition: all 0.3s ease;
+}
+
+/* نبض حدود الكارت عند التفعيل */
+.sos-active {
+    animation: pulse-emergency 2s infinite shadow;
+    background-color: #ef4444 !important;
+    color: white !important;
+    border-color: #b91c1c !important;
+}
+
+@keyframes pulse-emergency {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+/* --- زر المساعد الصوتي --- */
+.ai-mic-btn {
+    background: white;
+    color: var(--cure-teal);
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    /* شكل مربع دائري عصري */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ai-mic-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    background: var(--cure-gradient);
+    color: white;
+}
+
+/* --- حقول الإدخال --- */
+.form-input {
+    width: 100%;
+    padding: 1.1rem;
+    border: 2px solid transparent;
+    border-radius: 1.5rem;
+    background: #f1f5f9;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    background: white;
+    border-color: var(--cure-teal);
+    outline: none;
+    box-shadow: 0 10px 20px rgba(33, 140, 151, 0.05);
+}
+
+/* --- نصوص التدرج اللوني --- */
+.text-gradient {
+    background: var(--cure-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+/* --- أنيميشن لظهور العناصر --- */
+.fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
