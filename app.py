@@ -46,15 +46,15 @@ def index():
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
-# صفحة About Us (المسار النظيف اللي هيشتغل من الـ 3 شرط)
+# صفحة About Us (المسار الصافي /about-us)
 @app.route('/about-us')
 def about_us():
-    return render_template('about-us')
+    return render_template('about-us.html')
 
-# صفحة Services
+# صفحة Services (المسار الصافي /services)
 @app.route('/services')
 def services():
-    return render_template('services')
+    return render_template('services.html')
 
 # 1. تسجيل الدخول
 @app.route('/login', methods=['GET', 'POST'])
@@ -80,7 +80,7 @@ def login():
                 error = "Invalid Email or Password."
         except:
             error = "Connection Timeout."
-    return render_template('login', error=error)
+    return render_template('login.html', error=error)
 
 # 2. إنشاء حساب جديد
 @app.route('/register', methods=['GET', 'POST'])
@@ -104,14 +104,14 @@ def register():
                 error = data.get('error', {}).get('message', 'Registration Failed.')
         except:
             error = "Network Error."
-    return render_template('register', error=error)
+    return render_template('register.html', error=error)
 
 # 3. شاشة إدخال بيانات المريض
 @app.route('/patient_data')
 def patient_data():
     if not is_logged_in(): 
         return redirect(url_for('login'))
-    return render_template('patient_data')
+    return render_template('patient_data.html')
 
 # 4. حفظ بيانات المريض
 @app.route('/save_patient_data', methods=['POST'])
@@ -157,7 +157,7 @@ def reset_password():
                 error = "Email not found."
         except:
             error = "Network error."
-    return render_template('reset_password', message=message, error=error)
+    return render_template('reset_password.html', message=message, error=error)
 
 # 6. الداشبورد
 @app.route('/dashboard')
@@ -170,13 +170,13 @@ def dashboard():
         if not user_data:
             return redirect(url_for('patient_data'))
         
-        return render_template('dashboard', 
+        return render_template('dashboard.html', 
                                user_name=user_data.get('name', 'User'), 
                                user_email=session['email'],
                                location=user_data.get('location', {"lat": 31.2, "lng": 29.9}),
                                medical=user_data.get('medical_info', {}))
     except:
-        return render_template('dashboard', error="Sync Error")
+        return render_template('dashboard.html', error="Sync Error")
 
 # 7. API: تحكم الأدراج
 @app.route('/update_drawer', methods=['POST'])
@@ -210,5 +210,5 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    # ملاحظة لمؤمن: فيرسيل هو اللي بيحدد البورت أوتوماتيكياً، الكود ده شغال محلياً وعالمياً
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
+
