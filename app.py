@@ -45,12 +45,12 @@ def index():
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
-# صفحة About Us
+# صفحة About Us (المسار النظيف)
 @app.route('/about-us')
 def about_us():
     return render_template('about-us.html')
 
-# صفحة Services
+# صفحة Services (المسار النظيف)
 @app.route('/services')
 def services():
     return render_template('services.html')
