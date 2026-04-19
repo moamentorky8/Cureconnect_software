@@ -39,18 +39,19 @@ def is_logged_in():
 
 # --- Routes ---
 
+# الصفحة الرئيسية
 @app.route('/')
 def index():
     if is_logged_in():
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
-# صفحة About Us (المسار النظيف)
+# صفحة About Us (المسار النظيف اللي هيشتغل من الـ 3 شرط)
 @app.route('/about-us')
 def about_us():
     return render_template('about-us.html')
 
-# صفحة Services (المسار النظيف)
+# صفحة Services
 @app.route('/services')
 def services():
     return render_template('services.html')
@@ -58,7 +59,8 @@ def services():
 # 1. تسجيل الدخول
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if is_logged_in(): return redirect(url_for('dashboard'))
+    if is_logged_in(): 
+        return redirect(url_for('dashboard'))
     error = None
     if request.method == 'POST':
         email = request.form.get('email')
@@ -72,7 +74,6 @@ def login():
                 session.permanent = True
                 session['user_id'] = data['localId']
                 session['email'] = data['email']
-                # لو مسجلش اسم، نخليه 'User' افتراضي
                 session['user_name'] = data.get('displayName', 'User')
                 return redirect(url_for('dashboard'))
             else:
@@ -84,7 +85,8 @@ def login():
 # 2. إنشاء حساب جديد
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if is_logged_in(): return redirect(url_for('dashboard'))
+    if is_logged_in(): 
+        return redirect(url_for('dashboard'))
     error = None
     if request.method == 'POST':
         email = request.form.get('email')
@@ -107,13 +109,15 @@ def register():
 # 3. شاشة إدخال بيانات المريض
 @app.route('/patient_data')
 def patient_data():
-    if not is_logged_in(): return redirect(url_for('login'))
+    if not is_logged_in(): 
+        return redirect(url_for('login'))
     return render_template('patient_data.html')
 
 # 4. حفظ بيانات المريض
 @app.route('/save_patient_data', methods=['POST'])
 def save_patient_data():
-    if not is_logged_in(): return redirect(url_for('login'))
+    if not is_logged_in(): 
+        return redirect(url_for('login'))
     user_id = session['user_id']
     try:
         name = request.form.get('name')
@@ -158,7 +162,8 @@ def reset_password():
 # 6. الداشبورد
 @app.route('/dashboard')
 def dashboard():
-    if not is_logged_in(): return redirect(url_for('login'))
+    if not is_logged_in(): 
+        return redirect(url_for('login'))
     user_id = session['user_id']
     try:
         user_data = db.reference(f'users/{user_id}').get()
@@ -176,7 +181,8 @@ def dashboard():
 # 7. API: تحكم الأدراج
 @app.route('/update_drawer', methods=['POST'])
 def update_drawer():
-    if not is_logged_in(): return jsonify({"success": False}), 401
+    if not is_logged_in(): 
+        return jsonify({"success": False}), 401
     try:
         drawer_num = request.json.get('drawer')
         db.reference(f'device/{session["user_id"]}/drawers/d{drawer_num}_open').set(True)
@@ -184,10 +190,11 @@ def update_drawer():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
-# API للحصول على حالة الـ SOS لزوم السكريبت
+# API للحصول على حالة الـ SOS
 @app.route('/get_sos_status')
 def get_sos_status():
-    if not is_logged_in(): return jsonify({"sos_active": False})
+    if not is_logged_in(): 
+        return jsonify({"sos_active": False})
     try:
         user_id = session['user_id']
         data = db.reference(f'users/{user_id}/sos_active').get()
@@ -203,4 +210,5 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
+    # ملاحظة لمؤمن: فيرسيل هو اللي بيحدد البورت أوتوماتيكياً، الكود ده شغال محلياً وعالمياً
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
