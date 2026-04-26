@@ -1,3 +1,5 @@
 Flask
+Pyrebase4
+python-dotenv
 firebase-admin
 requests
