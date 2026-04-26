@@ -1,183 +1,230 @@
 import os
-import requests
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-import firebase_admin
-from firebase_admin import credentials, db
+from functools import wraps
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+import pyrebase
+from dotenv import load_dotenv
+
+load_dotenv(".env.local")
 
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "cureconnect-dev-secret-change-in-prod")
 
-# --- 1. إعدادات الأمان والمفاتيح ---
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "CureConnect_2026_Secure_Key")
-FIREBASE_WEB_API_KEY = os.environ.get("FIREBASE_WEB_API_KEY")
+# ── Firebase configuration ──────────────────────────────────────────────────
+firebase_config = {
+    "apiKey":            os.getenv("FIREBASE_API_KEY"),
+    "authDomain":        os.getenv("FIREBASE_AUTH_DOMAIN"),
+    "databaseURL":       os.getenv("FIREBASE_DATABASE_URL"),
+    "projectId":         os.getenv("FIREBASE_PROJECT_ID"),
+    "storageBucket":     os.getenv("FIREBASE_STORAGE_BUCKET"),
+    "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+    "appId":             os.getenv("FIREBASE_APP_ID"),
+}
 
-# --- 2. تهيئة فايربيز ---
-def initialize_firebase():
-    if not firebase_admin._apps:
-        try:
-            private_key = os.environ.get("FIREBASE_PRIVATE_KEY", "").replace("\\n", "\n")
-            creds_dict = {
-                "type": "service_account",
-                "project_id": os.environ.get("FIREBASE_PROJECT_ID"),
-                "private_key_id": os.environ.get("FIREBASE_PRIVATE_KEY_ID"),
-                "private_key": private_key,
-                "client_email": os.environ.get("FIREBASE_CLIENT_EMAIL"),
-                "token_uri": "https://oauth2.googleapis.com/token",
-            }
-            cred = credentials.Certificate(creds_dict)
-            firebase_admin.initialize_app(cred, {
-                'databaseURL': os.environ.get("FIREBASE_DATABASE_URL")
-            })
-            print("🚀 CureConnect Engine: Connected Successfully!")
-        except Exception as e:
-            print(f"⚠️ Firebase Initialization Error: {e}")
+firebase  = pyrebase.initialize_app(firebase_config)
+auth_fb   = firebase.auth()
+db        = firebase.database()
 
-initialize_firebase()
-
+# ── Auth helpers ────────────────────────────────────────────────────────────
 def is_logged_in():
-    return 'user_id' in session
+    return "user_id" in session and "id_token" in session
 
-# --- 3. قتالة الـ .html والـ index.html (Smart Redirects) ---
-# أي حد يدخل بـ .html السيرفر هيحوله فوراً للمسار النظيف
 
-@app.route('/index.html')
-@app.route('/index')
-def home_redirect():
-    return redirect('/', code=301)
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not is_logged_in():
+            flash("Please log in to access this page.", "warning")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
 
-@app.route('/about-us.html')
-def about_us_redirect():
-    return redirect('/about-us', code=301)
 
-@app.route('/services.html')
-def services_redirect():
-    return redirect('/services', code=301)
+# ── Routes ──────────────────────────────────────────────────────────────────
 
-@app.route('/login.html')
-def login_redirect():
-    return redirect('/login', code=301)
-
-# --- 4. المسارات الأساسية (Clean Routes) ---
-
-@app.route('/')
+@app.route("/")
 def index():
     if is_logged_in():
-        return redirect(url_for('dashboard'))
-    return render_template('index.html')
+        return redirect(url_for("dashboard"))
+    return redirect(url_for("login"))
 
-@app.route('/about-us')
-def about_us():
-    return render_template('about-us.html')
 
-@app.route('/services')
-def services():
-    return render_template('services.html')
-
-@app.route('/login', methods=['GET', 'POST'])
+# ── Login ────────────────────────────────────────────────────────────────────
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if is_logged_in(): return redirect(url_for('dashboard'))
-    error = None
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        auth_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
-        try:
-            response = requests.post(auth_url, json={"email": email, "password": password, "returnSecureToken": True}, timeout=10)
-            data = response.json()
-            if response.status_code == 200:
-                session.permanent = True
-                session['user_id'] = data['localId']
-                session['email'] = data['email']
-                return redirect(url_for('dashboard'))
-            else:
-                error = "Invalid Email or Password."
-        except:
-            error = "Connection Error."
-    return render_template('login.html', error=error)
+    if is_logged_in():
+        return redirect(url_for("dashboard"))
 
-@app.route('/register', methods=['GET', 'POST'])
+    if request.method == "POST":
+        email    = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
+
+        try:
+            user = auth_fb.sign_in_with_email_and_password(email, password)
+            session["user_id"]  = user["localId"]
+            session["id_token"] = user["idToken"]
+            session["email"]    = email
+
+            # Fetch display name from Firebase if stored
+            user_data = db.child("users").child(user["localId"]).child("profile").get(user["idToken"]).val()
+            session["display_name"] = (user_data or {}).get("name", email.split("@")[0])
+
+            flash("Welcome back!", "success")
+            return redirect(url_for("dashboard"))
+
+        except Exception as e:
+            error_msg = str(e)
+            if "INVALID_PASSWORD" in error_msg or "EMAIL_NOT_FOUND" in error_msg:
+                flash("Invalid email or password.", "danger")
+            elif "TOO_MANY_ATTEMPTS" in error_msg:
+                flash("Too many failed attempts. Please try again later.", "danger")
+            else:
+                flash("Login failed. Please check your credentials.", "danger")
+
+    return render_template("login.html")
+
+
+# ── Register ─────────────────────────────────────────────────────────────────
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    if is_logged_in(): return redirect(url_for('dashboard'))
-    error = None
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        auth_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FIREBASE_WEB_API_KEY}"
+    if is_logged_in():
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        email     = request.form.get("email", "").strip()
+        password  = request.form.get("password", "")
+        password2 = request.form.get("confirm_password", "")
+
+        if password != password2:
+            flash("Passwords do not match.", "danger")
+            return render_template("register.html")
+
+        if len(password) < 6:
+            flash("Password must be at least 6 characters.", "danger")
+            return render_template("register.html")
+
         try:
-            res = requests.post(auth_url, json={"email": email, "password": password, "returnSecureToken": True})
-            if res.status_code == 200:
-                data = res.json()
-                session['user_id'] = data['localId']
-                session['email'] = email
-                return redirect(url_for('patient_data'))
+            user = auth_fb.create_user_with_email_and_password(email, password)
+            session["user_id"]      = user["localId"]
+            session["id_token"]     = user["idToken"]
+            session["email"]        = email
+            session["display_name"] = email.split("@")[0]
+            session["new_user"]     = True          # flag: profile not yet completed
+
+            flash("Account created! Please complete your profile.", "success")
+            # Redirect new users straight to patient data form
+            return redirect(url_for("patient_data"))
+
+        except Exception as e:
+            error_msg = str(e)
+            if "EMAIL_EXISTS" in error_msg:
+                flash("An account with that email already exists.", "danger")
+            elif "WEAK_PASSWORD" in error_msg:
+                flash("Password is too weak. Use at least 6 characters.", "danger")
             else:
-                error = "Registration Failed."
-        except:
-            error = "Network Error."
-    return render_template('register.html', error=error)
+                flash("Registration failed. Please try again.", "danger")
 
-@app.route('/patient_data')
+    return render_template("register.html")
+
+
+# ── Patient Data ──────────────────────────────────────────────────────────────
+@app.route("/patient_data", methods=["GET", "POST"])
+@login_required
 def patient_data():
-    if not is_logged_in(): return redirect(url_for('login'))
-    return render_template('patient_data.html')
+    user_id  = session["user_id"]
+    id_token = session["id_token"]
 
-@app.route('/save_patient_data', methods=['POST'])
-def save_patient_data():
-    if not is_logged_in(): return redirect(url_for('login'))
-    user_id = session['user_id']
-    try:
-        data = {
-            "name": request.form.get('name'),
-            "email": session['email'],
-            "location": {"lat": 31.2001, "lng": 29.9187},
-            "medical_info": {
-                "age": request.form.get('age'),
-                "blood_type": request.form.get('blood_type'),
-                "phone": request.form.get('phone'),
-                "chronic_diseases": request.form.get('diseases', '').split(',')
-            }
+    if request.method == "POST":
+        medical_info = {
+            "name":          request.form.get("name", "").strip(),
+            "age":           request.form.get("age", "").strip(),
+            "blood_type":    request.form.get("blood_type", "").strip(),
+            "gender":        request.form.get("gender", "").strip(),
+            "phone":         request.form.get("phone", "").strip(),
+            "address":       request.form.get("address", "").strip(),
+            "medical_notes": request.form.get("medical_notes", "").strip(),
+            "allergies":     request.form.get("allergies", "").strip(),
+            "medications":   request.form.get("medications", "").strip(),
+            "medical_status": "Profile Complete",
         }
-        db.reference(f'users/{user_id}').set(data)
-        return redirect(url_for('dashboard'))
-    except Exception as e:
-        return f"Error: {e}"
 
-@app.route('/dashboard')
+        profile = {
+            "name":  medical_info["name"],
+            "email": session.get("email", ""),
+        }
+
+        try:
+            # Save under users/{user_id}/medical_info
+            db.child("users").child(user_id).child("medical_info").set(medical_info, id_token)
+            # Also store a slim profile node for quick reads
+            db.child("users").child(user_id).child("profile").set(profile, id_token)
+
+            session["display_name"] = medical_info["name"] or session["display_name"]
+            session.pop("new_user", None)
+
+            flash("Profile saved successfully!", "success")
+            return redirect(url_for("dashboard"))
+
+        except Exception as e:
+            flash(f"Error saving data: {str(e)}", "danger")
+
+    # Pre-fill form if data already exists
+    existing = None
+    try:
+        existing = db.child("users").child(user_id).child("medical_info").get(id_token).val()
+    except Exception:
+        pass
+
+    return render_template("patient_data.html", data=existing or {})
+
+
+# ── Dashboard ─────────────────────────────────────────────────────────────────
+@app.route("/dashboard")
+@login_required
 def dashboard():
-    if not is_logged_in(): return redirect(url_for('login'))
-    user_id = session['user_id']
-    user_data = db.reference(f'users/{user_id}').get()
-    if not user_data: return redirect(url_for('patient_data'))
-    return render_template('dashboard.html', 
-                           user_name=user_data.get('name', 'User'), 
-                           user_email=session['email'],
-                           location=user_data.get('location', {"lat": 31.2, "lng": 29.9}),
-                           medical=user_data.get('medical_info', {}))
+    user_id  = session["user_id"]
+    id_token = session["id_token"]
 
-@app.route('/update_drawer', methods=['POST'])
-def update_drawer():
-    if not is_logged_in(): return jsonify({"success": False}), 401
+    medical_info = {}
     try:
-        drawer_num = request.json.get('drawer')
-        db.reference(f'device/{session["user_id"]}/drawers/d{drawer_num}_open').set(True)
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
+        medical_info = db.child("users").child(user_id).child("medical_info").get(id_token).val() or {}
+    except Exception:
+        pass
 
-@app.route('/get_sos_status')
-def get_sos_status():
-    if not is_logged_in(): return jsonify({"sos_active": False})
-    try:
-        user_id = session['user_id']
-        data = db.reference(f'users/{user_id}/sos_active').get()
-        location = db.reference(f'users/{user_id}/location').get()
-        return jsonify({"sos_active": data, "location": location})
-    except:
-        return jsonify({"sos_active": False})
+    user_name      = medical_info.get("name") or session.get("display_name", "User")
+    medical_status = medical_info.get("medical_status", "Incomplete – please complete your profile")
 
-@app.route('/logout')
+    return render_template(
+        "dashboard.html",
+        user_name=user_name,
+        medical_status=medical_status,
+        medical_info=medical_info,
+        email=session.get("email", ""),
+    )
+
+
+# ── Reset Password ────────────────────────────────────────────────────────────
+@app.route("/reset_password", methods=["GET", "POST"])
+def reset_password():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        try:
+            auth_fb.send_password_reset_email(email)
+            flash("Password reset email sent. Check your inbox.", "success")
+            return redirect(url_for("login"))
+        except Exception:
+            flash("Could not send reset email. Check the address and try again.", "danger")
+
+    return render_template("reset_password.html")
+
+
+# ── Logout ────────────────────────────────────────────────────────────────────
+@app.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    flash("You've been logged out.", "info")
+    return redirect(url_for("login"))
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
+
+# ─────────────────────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true")
