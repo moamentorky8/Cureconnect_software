@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CureConnect{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+</head>
+<body class="bg-[#F9FAFB]">
+
+    <nav class="flex justify-between items-center px-8 py-4 bg-white shadow-sm sticky top-0 z-50">
+        <div class="flex items-center space-x-2">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-10 h-10 object-contain">
+            <span class="text-2xl font-bold">Cure<span class="text-[#218C97]">Connect</span></span>
+        </div>
+        <div class="space-x-6 font-semibold text-gray-600">
+            <a href="{{ url_for('index') }}" class="hover:text-[#218C97]">Home</a>
+            <a href="{{ url_for('about_us') }}" class="hover:text-[#218C97]">About</a>
+            <a href="{{ url_for('services') }}" class="hover:text-[#218C97]">Services</a>
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('dashboard') }}" class="hover:text-[#218C97]">Dashboard</a>
+                <a href="{{ url_for('logout') }}" class="text-red-500">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="bg-[#218C97] text-white px-4 py-2 rounded-lg">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <footer class="py-8 text-center text-gray-400 text-sm border-t mt-10">
+        <img src="{{ url_for('static', filename='logo.png') }}" class="w-6 h-6 mx-auto mb-2 opacity-50">
+        &copy; 2026 CureConnect System.
+    </footer>
+</body>
+</html>
