@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "CureConnect_2026_Secure_Key")
 FIREBASE_WEB_API_KEY = os.environ.get("FIREBASE_WEB_API_KEY")
 
-# 2. تهيئة فايربيز (النسخة الاحترافية لـ Vercel)
+# 2. تهيئة فايربيز
 def initialize_firebase():
     if not firebase_admin._apps:
         try:
@@ -44,6 +44,16 @@ def index():
     if is_logged_in():
         return redirect(url_for('dashboard'))
     return render_template('index.html')
+
+# صفحة من نحن (حل مشكلة 404)
+@app.route('/about-us')
+def about_us():
+    return render_template('about-us.html')
+
+# صفحة خدماتنا (حل مشكلة 404)
+@app.route('/services')
+def services():
+    return render_template('services.html')
 
 # 1. تسجيل الدخول
 @app.route('/login', methods=['GET', 'POST'])
@@ -85,7 +95,6 @@ def register():
             if response.status_code == 200:
                 session['user_id'] = data['localId']
                 session['email'] = email
-                # توجيه المستخدم لصفحة إدخال بيانات المريض فوراً بعد التسجيل
                 return redirect(url_for('patient_data'))
             else:
                 error = data.get('error', {}).get('message', 'Registration Failed.')
@@ -93,13 +102,13 @@ def register():
             error = "Network Error."
     return render_template('register.html', error=error)
 
-# 3. شاشة إدخال بيانات المريض (لأول مرة)
+# 3. شاشة إدخال بيانات المريض
 @app.route('/patient_data')
 def patient_data():
     if not is_logged_in(): return redirect(url_for('login'))
     return render_template('patient_data.html')
 
-# 4. حفظ بيانات المريض في الـ Database
+# 4. حفظ بيانات المريض
 @app.route('/save_patient_data', methods=['POST'])
 def save_patient_data():
     if not is_logged_in(): return redirect(url_for('login'))
@@ -114,7 +123,7 @@ def save_patient_data():
         db.reference(f'users/{user_id}').set({
             "name": name,
             "email": session['email'],
-            "location": {"lat": 31.2001, "lng": 29.9187}, # موقع افتراضي (Alexandria)
+            "location": {"lat": 31.2001, "lng": 29.9187},
             "medical_info": {
                 "age": age,
                 "blood_type": blood_type,
@@ -126,25 +135,7 @@ def save_patient_data():
     except Exception as e:
         return f"Database Error: {e}"
 
-# 5. استعادة كلمة المرور
-@app.route('/reset_password', methods=['GET', 'POST'])
-def reset_password():
-    message, error = None, None
-    if request.method == 'POST':
-        email = request.form.get('email')
-        auth_url = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={FIREBASE_WEB_API_KEY}"
-        payload = {"requestType": "PASSWORD_RESET", "email": email}
-        try:
-            res = requests.post(auth_url, json=payload, timeout=10)
-            if res.status_code == 200:
-                message = "Recovery link sent to your email!"
-            else:
-                error = "Email not found."
-        except:
-            error = "Network error."
-    return render_template('reset_password.html', message=message, error=error)
-
-# 6. الداشبورد (عرض البيانات والتحكم)
+# 5. الداشبورد
 @app.route('/dashboard')
 def dashboard():
     if not is_logged_in(): return redirect(url_for('login'))
@@ -152,7 +143,6 @@ def dashboard():
     try:
         user_data = db.reference(f'users/{user_id}').get()
         if not user_data:
-            # لو الحساب لسه ملوش داتا يروح يكملها
             return redirect(url_for('patient_data'))
         
         return render_template('dashboard.html', 
@@ -163,18 +153,6 @@ def dashboard():
     except:
         return render_template('dashboard.html', error="Sync Error")
 
-# 7. API: تحكم الأدراج (ESP32 Interface)
-@app.route('/update_drawer', methods=['POST'])
-def update_drawer():
-    if not is_logged_in(): return jsonify({"success": False}), 401
-    try:
-        drawer_num = request.json.get('drawer')
-        db.reference(f'device/{session["user_id"]}/drawers/d{drawer_num}_open').set(True)
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
-
-# 8. تسجيل الخروج
 @app.route('/logout')
 def logout():
     session.clear()
