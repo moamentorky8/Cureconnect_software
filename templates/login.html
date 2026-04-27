@@ -19,7 +19,6 @@
             font-family: 'Space Grotesk', sans-serif;
         }
 
-        /* تدرج الألوان الجديد Teal & Green */
         .bg-gradient-main {
             background: linear-gradient(135deg, #218C97 0%, #59B585 100%);
         }
@@ -41,26 +40,29 @@
             <span class="text-2xl display-font font-bold text-[#111827]">Cure<span
                     class="text-[#218C97]">Connect</span></span>
         </div>
-        <a href="{{ url_for('index') }}" class="text-sm font-semibold text-[#218C97] hover:underline transition-all">Back to
-            Home</a>
+        <a href="{{ url_for('index') }}" class="text-sm font-semibold text-[#218C97] hover:underline transition-all">Back to Home</a>
     </nav>
 
     <main class="flex-grow flex items-center justify-center p-6 relative overflow-hidden">
-        <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#59B585]/10 blur-[100px] rounded-full">
-        </div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#59B585]/10 blur-[100px] rounded-full"></div>
 
         <div class="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl border border-gray-50 relative z-10">
             <div class="text-center mb-10">
                 <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-16 h-16 mx-auto mb-4 object-contain">
                 <h1 class="text-4xl display-font font-bold text-gradient mb-2">Welcome Back</h1>
                 <p class="text-gray-500 font-medium">Manage your health and medications</p>
+                
+                {% if error %}
+                <div class="mt-4 p-3 rounded-xl bg-red-50 text-red-600 text-sm font-bold border border-red-100">
+                    {{ error }}
+                </div>
+                {% endif %}
             </div>
 
-            <form id="loginForm" class="space-y-6">
+            <form action="{{ url_for('login') }}" method="POST" class="space-y-6">
                 <div>
                     <label class="block text-sm font-bold text-[#111827] mb-2 ml-1">Email Address</label>
-                    <input type="email" id="email" required
+                    <input type="email" name="email" id="email" required
                         class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-[#218C97] focus:bg-white focus:ring-4 focus:ring-[#218C97]/5 outline-none transition-all font-medium"
                         placeholder="moamen@cureconnect.com">
                 </div>
@@ -71,7 +73,7 @@
                         <a href="{{ url_for('reset_password') }}"
                             class="text-xs font-bold text-[#59B585] hover:text-[#218C97] transition-colors hover:underline">Forgot?</a>
                     </div>
-                    <input type="password" id="password" required
+                    <input type="password" name="password" id="password" required
                         class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-[#218C97] focus:bg-white focus:ring-4 focus:ring-[#218C97]/5 outline-none transition-all font-medium"
                         placeholder="••••••••">
                 </div>
@@ -95,13 +97,6 @@
         </div>
         &copy; 2026 CureConnect System. All rights reserved.
     </footer>
-
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            console.log("Attempting to login to CureConnect...");
-        });
-    </script>
 </body>
 
 </html>
