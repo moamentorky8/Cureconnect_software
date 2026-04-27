@@ -7,56 +7,70 @@ from firebase_admin import credentials, db
 app = Flask(__name__)
 
 # --- 1. إعدادات الأمان والمفاتيح ---
+# استخدام قيمة افتراضية لتجنب توقف السيرفر إذا لم يجد المفتاح
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "CureConnect_2026_Secure_Key")
 FIREBASE_WEB_API_KEY = os.environ.get("FIREBASE_WEB_API_KEY")
 
-# --- 2. تهيئة فايربيز ---
+# --- 2. تهيئة فايربيز (الإصلاح الجذري لخطأ 500) ---
 def initialize_firebase():
     if not firebase_admin._apps:
         try:
-            private_key = os.environ.get("FIREBASE_PRIVATE_KEY", "").replace("\\n", "\n")
+            # الحل النهائي لمشكلة السطر الجديد في الـ Private Key
+            raw_private_key = os.environ.get("FIREBASE_PRIVATE_KEY", "")
+            private_key = raw_private_key.replace("\\n", "\n")
+            
+            # التأكد من وجود البيانات الأساسية قبل المحاولة
+            project_id = os.environ.get("FIREBASE_PROJECT_ID")
+            client_email = os.environ.get("FIREBASE_CLIENT_EMAIL")
+            database_url = os.environ.get("FIREBASE_DATABASE_URL")
+
+            if not all([project_id, private_key, client_email, database_url]):
+                print("⚠️ Missing Firebase Environment Variables!")
+                return
+
             creds_dict = {
                 "type": "service_account",
-                "project_id": os.environ.get("FIREBASE_PROJECT_ID"),
+                "project_id": project_id,
                 "private_key_id": os.environ.get("FIREBASE_PRIVATE_KEY_ID"),
                 "private_key": private_key,
-                "client_email": os.environ.get("FIREBASE_CLIENT_EMAIL"),
+                "client_email": client_email,
                 "token_uri": "https://oauth2.googleapis.com/token",
             }
+            
             cred = credentials.Certificate(creds_dict)
             firebase_admin.initialize_app(cred, {
-                'databaseURL': os.environ.get("FIREBASE_DATABASE_URL")
+                'databaseURL': database_url
             })
             print("🚀 CureConnect Engine: Connected Successfully!")
         except Exception as e:
-            print(f"⚠️ Firebase Initialization Error: {e}")
+            # طباعة الخطأ في الـ Logs يساعدك جداً في Vercel لمعرفة السبب الحقيقي
+            print(f"⚠️ Firebase Initialization Error: {str(e)}")
 
 initialize_firebase()
 
 def is_logged_in():
     return 'user_id' in session
 
-# --- 3. قتالة الـ .html والـ index.html (Smart Redirects) ---
-# أي حد يدخل بـ .html السيرفر هيحوله فوراً للمسار النظيف
+# --- 3. قتالة الـ .html والـ index.html (إصلاح مسارات التنقل) ---
 
 @app.route('/index.html')
 @app.route('/index')
 def home_redirect():
-    return redirect('/', code=301)
+    return redirect(url_for('index'), code=301)
 
 @app.route('/about-us.html')
 def about_us_redirect():
-    return redirect('/about-us', code=301)
+    return redirect(url_for('about_us'), code=301)
 
 @app.route('/services.html')
 def services_redirect():
-    return redirect('/services', code=301)
+    return redirect(url_for('services'), code=301)
 
 @app.route('/login.html')
 def login_redirect():
-    return redirect('/login', code=301)
+    return redirect(url_for('login'), code=301)
 
-# --- 4. المسارات الأساسية (Clean Routes) ---
+# --- 4. المسارات الأساسية ---
 
 @app.route('/')
 def index():
@@ -81,7 +95,8 @@ def login():
         password = request.form.get('password')
         auth_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
         try:
-            response = requests.post(auth_url, json={"email": email, "password": password, "returnSecureToken": True}, timeout=10)
+            # إضافة timeout لتجنب انتظار السيرفر طويلاً (مما يسبب خطأ 504 أو 500)
+            response = requests.post(auth_url, json={"email": email, "password": password, "returnSecureToken": True}, timeout=7)
             data = response.json()
             if response.status_code == 200:
                 session.permanent = True
@@ -89,9 +104,9 @@ def login():
                 session['email'] = data['email']
                 return redirect(url_for('dashboard'))
             else:
-                error = "Invalid Email or Password."
-        except:
-            error = "Connection Error."
+                error = "بيانات الدخول غير صحيحة."
+        except Exception:
+            error = "فشل الاتصال بخادم المصادقة."
     return render_template('login.html', error=error)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -103,16 +118,16 @@ def register():
         password = request.form.get('password')
         auth_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FIREBASE_WEB_API_KEY}"
         try:
-            res = requests.post(auth_url, json={"email": email, "password": password, "returnSecureToken": True})
+            res = requests.post(auth_url, json={"email": email, "password": password, "returnSecureToken": True}, timeout=7)
             if res.status_code == 200:
                 data = res.json()
                 session['user_id'] = data['localId']
                 session['email'] = email
                 return redirect(url_for('patient_data'))
             else:
-                error = "Registration Failed."
-        except:
-            error = "Network Error."
+                error = "فشل إنشاء الحساب، قد يكون البريد مستخدم بالفعل."
+        except Exception:
+            error = "خطأ في الشبكة."
     return render_template('register.html', error=error)
 
 @app.route('/patient_data')
@@ -125,6 +140,7 @@ def save_patient_data():
     if not is_logged_in(): return redirect(url_for('login'))
     user_id = session['user_id']
     try:
+        # تأكد من أن الـ DatabaseURL مهيأ بشكل صحيح في initialize_firebase
         data = {
             "name": request.form.get('name'),
             "email": session['email'],
@@ -133,25 +149,32 @@ def save_patient_data():
                 "age": request.form.get('age'),
                 "blood_type": request.form.get('blood_type'),
                 "phone": request.form.get('phone'),
-                "chronic_diseases": request.form.get('diseases', '').split(',')
+                "chronic_diseases": [d.strip() for d in request.form.get('diseases', '').split(',') if d.strip()]
             }
         }
         db.reference(f'users/{user_id}').set(data)
         return redirect(url_for('dashboard'))
     except Exception as e:
-        return f"Error: {e}"
+        # بدلاً من كراش للسيرفر، نعرض الخطأ بشكل بسيط أو نسجله
+        print(f"Database Save Error: {str(e)}")
+        return "حدث خطأ أثناء حفظ البيانات، يرجى المحاولة لاحقاً."
 
 @app.route('/dashboard')
 def dashboard():
     if not is_logged_in(): return redirect(url_for('login'))
     user_id = session['user_id']
-    user_data = db.reference(f'users/{user_id}').get()
-    if not user_data: return redirect(url_for('patient_data'))
-    return render_template('dashboard.html', 
-                           user_name=user_data.get('name', 'User'), 
-                           user_email=session['email'],
-                           location=user_data.get('location', {"lat": 31.2, "lng": 29.9}),
-                           medical=user_data.get('medical_info', {}))
+    try:
+        user_data = db.reference(f'users/{user_id}').get()
+        if not user_data:
+            return redirect(url_for('patient_data'))
+        
+        return render_template('dashboard.html', 
+                               user_name=user_data.get('name', 'User'), 
+                               user_email=session['email'],
+                               location=user_data.get('location', {"lat": 31.2, "lng": 29.9}),
+                               medical=user_data.get('medical_info', {}))
+    except Exception:
+        return render_template('dashboard.html', error="فشل مزامنة البيانات")
 
 @app.route('/logout')
 def logout():
@@ -159,4 +182,6 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
+    # تأكد من قراءة البورت من البيئة ليتوافق مع Vercel/Render
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
