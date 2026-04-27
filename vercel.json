@@ -1,13 +1,9 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "app.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    { "src": "/static/(.*)", "dest": "/static/$1" },
-    { "src": "/(.*)", "dest": "app.py" }
+  "rewrites": [
+    { "source": "/login", "destination": "/api/app" },
+    { "source": "/register", "destination": "/api/app" },
+    { "source": "/dashboard", "destination": "/api/app" },
+    { "source": "/patient_data", "destination": "/api/app" },
+    { "source": "/static/(.*)", "destination": "/static/$1" }
   ]
 }
