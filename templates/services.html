@@ -48,7 +48,7 @@
                 </svg>
             </button>
             <div class="flex items-center space-x-2">
-                <img src="../logo.png" alt="CureConnect" class="w-10 h-10 object-contain">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="CureConnect" class="w-10 h-10 object-contain">
                 <span class="text-xl display-font font-bold">Cure<span class="text-[#218C97]">Connect</span></span>
             </div>
         </div>
@@ -165,7 +165,7 @@
 
     <footer class="py-12 bg-white border-t border-gray-50 text-center">
         <div class="flex justify-center items-center space-x-2 mb-4">
-            <img src="../logo.png" alt="Logo" class="w-6 h-6 grayscale opacity-50 object-contain">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-6 h-6 grayscale opacity-50 object-contain">
             <span class="text-gray-400 font-bold display-font">CureConnect System</span>
         </div>
         <p class="text-gray-400 text-sm">&copy; 2026 Borg El Arab Technological University Project.</p>
